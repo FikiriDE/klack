@@ -33,6 +33,7 @@ body {
   margin: 0;
   background: radial-gradient(120% 80% at 50% 30%, var(--table) 0%, var(--table-deep) 100%);
   background-color: var(--table-deep);
+  background-attachment: fixed;
   color: var(--paper);
   font-family: var(--font-body);
   font-size: 16px;
@@ -128,19 +129,54 @@ h1 {
   text-wrap: balance;
 }
 .status b { color: var(--plastic); font-weight: 800; }
-.chords { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.chord {
-  font: 800 14px/1 var(--font-body);
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 2px solid var(--plastic);
-  background: transparent;
-  color: var(--paper);
-  cursor: pointer;
+.picker {
+  width: min(100%, 560px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--panel);
 }
-.chord span { font-family: var(--font-lcd); color: var(--plastic); margin-right: 4px; }
-.chord:active { background: rgba(245,194,27,.18); }
-.chord:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px; }
+.picker legend { padding: 0; font-family: var(--font-display); font-size: 15px; color: var(--plastic); letter-spacing: .03em; float: left; width: 100%; }
+.group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; clear: both; }
+.group-name { flex: 0 0 8.5em; font-weight: 800; font-size: 15px; }
+.options { display: flex; gap: 6px; flex-wrap: wrap; }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt span {
+  display: block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(245,194,27,.55);
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.opt input:checked + span { background: var(--plastic); border-color: var(--plastic); color: #3a2a00; }
+.opt input:focus-visible + span { outline: 3px solid var(--paper); outline-offset: 2px; }
+.opt input:disabled + span { opacity: .45; }
+.opt input:disabled { cursor: default; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  font-family: var(--font-display);
+  font-size: 18px;
+  padding: 11px 26px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  color: #3a2a00;
+  background: var(--plastic);
+  box-shadow: 0 5px 0 var(--plastic-edge), 0 8px 16px rgba(0,0,0,.3);
+}
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--plastic-edge); }
+.btn:focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
+.btn.secondary { background: transparent; color: var(--paper); box-shadow: inset 0 0 0 2px var(--plastic); }
+.btn.secondary:active { transform: translateY(1px); box-shadow: inset 0 0 0 2px var(--plastic); }
+@media (max-width: 420px) { .group-name { flex-basis: 100%; } }
 
 .records {
   display: grid;
@@ -198,16 +234,40 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     <button class="key" data-n="6" style="--x:35.5%;--y:40" aria-label="Taste 6">6</button>
 
     <div class="screen" id="screen" role="img" aria-label="Anzeigenfeld">
-      <svg id="lcd" viewBox="-34 -4 314 108" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="lcd" viewBox="-8 -4 288 108" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
   </div>
 
   <p class="status" id="status" aria-live="polite"></p>
 
-  <div class="chords">
-    <button class="chord" id="chordReset"><span>1+2+3</span>Löschen</button>
-    <button class="chord" id="chordPause"><span>3+4+5</span>Pause</button>
-  </div>
+  <fieldset class="picker" id="picker">
+    <legend>Spiel auswählen</legend>
+    <div class="group">
+      <span class="group-name">Reaktionsspiel</span>
+      <div class="options">
+        <label class="opt"><input type="radio" name="mode" id="m-r1" value="react-1" checked><span>Stufe 1</span></label>
+        <label class="opt"><input type="radio" name="mode" id="m-r2" value="react-2"><span>Stufe 2</span></label>
+      </div>
+    </div>
+    <div class="group">
+      <span class="group-name">Knobelspiel</span>
+      <div class="options">
+        <label class="opt"><input type="radio" name="mode" id="m-k1" value="knobel-1"><span>Stufe 1</span></label>
+        <label class="opt"><input type="radio" name="mode" id="m-k2" value="knobel-2"><span>Stufe 2</span></label>
+        <label class="opt"><input type="radio" name="mode" id="m-k3" value="knobel-3"><span>Stufe 3</span></label>
+      </div>
+    </div>
+    <div class="group">
+      <span class="group-name">Anzeige</span>
+      <div class="options">
+        <label class="opt"><input type="radio" name="mode" id="m-clock" value="clock"><span>Uhrzeit</span></label>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="startBtn" type="button">Start</button>
+      <button class="btn secondary" id="pauseBtn" type="button" hidden>Pause</button>
+    </div>
+  </fieldset>
 
   <div class="records" aria-label="Rekorde">
     <div class="rec"><span>Reaktion 1</span><strong id="r1">–</strong></div>
@@ -220,37 +280,25 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   <details class="help">
     <summary>Kurzanleitung</summary>
     <h2>Bedienen</h2>
-    <p>Tasten antippen (mehrere Finger gleichzeitig gehen auch) oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. Für „gleichzeitig drücken“ die Tasten zusammen halten oder die Knöpfe unter dem Gerät nehmen.</p>
-    <h2>Jetzt geht's los</h2>
-    <ul>
-      <li>Beim ersten Einschalten <b>1, 2 und 3 gleichzeitig</b> drücken. Speicher, Uhr und Wecker stehen dann auf 00:00.</li>
-      <li>Loslassen: Die Anzeige zeigt viermal die 8. Das ist die Grundstellung.</li>
-      <li>In der Grundstellung: <b>6</b> Reaktionsspiel, <b>2</b> Knobelspiel, <b>1</b> Uhrzeit.</li>
-      <li>Mit <b>1</b> kommst du immer wieder in die Grundstellung zurück.</li>
-    </ul>
+    <p>Spiel und Stufe oben auswählen und <b>Start</b> drücken. Die Stufe erscheint kurz links in der Anzeige, dann piepst es und das Spiel beginnt. Tasten antippen (mehrere Finger gleichzeitig gehen auch) oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. <kbd>Leertaste</kbd> startet.</p>
     <h2>Reaktionsspiel</h2>
     <ul>
-      <li>Taste 6 einmal: Stufe 1, nur Zahlen von 1 bis 6, je 1,5 Sekunden Zeit.</li>
-      <li>Taste 6 zweimal: Stufe 2, auch zweistellige Zahlen. Beide Tasten innerhalb von 2 Sekunden drücken, zusammen oder in beliebiger Reihenfolge.</li>
+      <li>Stufe 1: nur Zahlen von 1 bis 6, je 1,5 Sekunden Zeit.</li>
+      <li>Stufe 2: auch zweistellige Zahlen. Beide Tasten innerhalb von 2 Sekunden drücken, zusammen oder in beliebiger Reihenfolge.</li>
       <li>Jede richtige Zahl bringt so viele Punkte, wie sie anzeigt. Das Tempo wird immer schneller.</li>
-      <li>Falsche Taste oder zu langsam: Spiel aus, der Punktestand erscheint, der nächste Spieler ist dran (Taste 6).</li>
+      <li>Falsche Taste oder zu langsam: Spiel aus, der Punktestand erscheint, der nächste Spieler drückt Start.</li>
     </ul>
     <h2>Knobelspiel</h2>
     <ul>
       <li>Jeder Tastendruck lässt einen der sieben Striche der 8 aufleuchten oder wieder verlöschen. Finde heraus, nach welchem System.</li>
       <li>Erst die rechte 8 bauen, dann die mittlere, dann die linke. Die Zeit wird gestoppt und am Schluss angezeigt.</li>
-      <li>Taste 2 einmal: Stufe 1, höchstens 3:20 Minuten. In den letzten 20 Sekunden blinkt die Anzeige, danach schaltet sich das Gerät aus.</li>
-      <li>Taste 2 zweimal: Stufe 2, ohne Zeitlimit und schwerer.</li>
-      <li>Taste 2 dreimal: Stufe 3. Du musst immer eine Taste gedrückt halten, während du die nächste drückst (Tastatur oder zwei Finger).</li>
-      <li><b>3, 4 und 5 gleichzeitig</b>: Pause und weiter. Nach zwei Minuten ohne Tastendruck macht das Gerät selbst Pause.</li>
-      <li><b>1, 2 und 3 gleichzeitig</b>: alles löschen und von vorne.</li>
+      <li>Stufe 1: höchstens 3:20 Minuten. In den letzten 20 Sekunden blinkt die Anzeige, danach schaltet sich das Gerät aus.</li>
+      <li>Stufe 2: ohne Zeitlimit und schwerer.</li>
+      <li>Stufe 3: Du musst immer eine Taste gedrückt halten, während du die nächste drückst (Tastatur oder zwei Finger).</li>
+      <li>Pause: Knopf <b>Pause</b> oder 3, 4 und 5 gleichzeitig. Nach zwei Minuten ohne Tastendruck macht das Gerät selbst Pause.</li>
     </ul>
-    <h2>Uhr und Wecker</h2>
-    <ul>
-      <li>Uhr stellen: Taste 2 (Doppelpunkt blinkt nicht mehr), dann 5 für Stunden und 3 für Minuten, mit 1 läuft die Uhr weiter.</li>
-      <li>Wecker: Bei laufender Uhr erst 6, dann 4. Taste 4 schaltet den Alarm ein oder aus (aus: vier Striche). Mit 5 und 3 die Weckzeit stellen, mit 1 zurück.</li>
-      <li>Das Glockensymbol zeigt einen eingeschalteten Wecker. Piepst er, stoppt ihn eine beliebige Taste. Er klingelt nur, solange diese Seite offen ist.</li>
-    </ul>
+    <h2>Abbrechen</h2>
+    <p>Knopf <b>Abbrechen</b> oder 1, 2 und 3 gleichzeitig: Das Spiel endet, die Anzeige zeigt wieder viermal die 8.</p>
   </details>
 </main>
 
@@ -258,7 +306,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
 (() => {
   const $ = id => document.getElementById(id);
   const DAY = 86400000;
-  const STORE = "knobelklack-v2";
+  const STORE = "knobelklack-v3";
 
   // ---------- Siebensegment-Anzeige (4 Stellen, Doppelpunkt, Glocke) ----------
   const A = 1, B = 2, C = 4, D = 8, E = 16, F = 32, G = 64, ALL = 127;
@@ -293,19 +341,13 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     lcd.appendChild(c);
     return c;
   });
-  const bellEl = document.createElementNS(NS, "path");
-  bellEl.setAttribute("d", "M-18 6 c-7 0 -10 6 -10 13 v8 l-4 5 h28 l-4 -5 v-8 c0 -7 -3 -13 -10 -13 z M-22 34 a4 4 0 0 0 8 0 z");
-  bellEl.setAttribute("class", "seg");
-  lcd.appendChild(bellEl);
-
   let shown = "";
   function paint(view) {
-    const sig = view.d.join(",") + view.colon + view.bell + view.blank;
+    const sig = view.d.join(",") + view.colon + view.blank;
     if (sig === shown) return;
     shown = sig;
     view.d.forEach((mask, i) => segEls[i].forEach(([bit, el]) => el.classList.toggle("on", !view.blank && !!(mask & bit))));
     colonEls.forEach(el => el.classList.toggle("on", !view.blank && view.colon));
-    bellEl.classList.toggle("on", !view.blank && view.bell);
   }
   // Text rechtsbündig auf 4 Stellen
   const text4 = s => String(s).slice(-4).padStart(4, " ").split("").map(ch => CH[ch] ?? 0);
@@ -336,22 +378,12 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     reject: () => tone(220, 0.06, "triangle", 0.05),
   };
 
-  // ---------- Gespeicherter Zustand (Uhr, Wecker, Rekorde) ----------
-  function freshMemory(rec) {
-    return { init: true, clock: { offset: 0, base: Date.now(), running: true }, alarm: { h: 0, m: 0, on: false }, rec: rec || {} };
-  }
+  // ---------- Gespeicherter Zustand (Auswahl, Rekorde) ----------
   let S;
   try { S = JSON.parse(localStorage.getItem(STORE)); } catch (e) {}
-  if (!S || !S.clock || !S.alarm) S = { ...freshMemory(), init: false };
+  if (!S || typeof S !== "object") S = {};
   S.rec = S.rec || {};
-  function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
-
-  const clockMs = () => {
-    const c = S.clock;
-    return c.running ? (((c.offset + Date.now() - c.base) % DAY) + DAY) % DAY : c.offset;
-  };
-  const setClock = (ms, running) => { S.clock = { offset: ((ms % DAY) + DAY) % DAY, base: Date.now(), running }; save(); };
-  const hhmm = ms => ({ h: Math.floor(ms / 3600000), m: Math.floor(ms % 3600000 / 60000) });
+  function save() { try { localStorage.setItem(STORE, JSON.stringify({ rec: S.rec, choice: S.choice })); } catch (e) {} }
   const mmss = ms => { const s = Math.floor(ms / 1000); return `${Math.min(99, Math.floor(s / 60))}:${two(s % 60)}`; };
 
   function showRecords() {
@@ -361,21 +393,24 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   }
 
   // ---------- Spielmodi ----------
-  // uninit | reset | home | select | react | reactOver | knobel | knobelDone | off | clock | clockSet | alarm
-  let mode = S.init ? "home" : "uninit";
+  // home | select | react | reactOver | knobel | knobelDone | off | clock
+  let mode = "home";
   let M = {};               // Daten des aktuellen Modus
   let lockUntil = 0;        // kurze Sperre nach Spielende gegen versehentliches Weiterdrücken
   const held = new Set();   // gerade gedrückte Tasten
   const flash = {};         // Taste -> grün bis Zeitpunkt
   let lastKeyAt = performance.now();
-  let ring = null;          // Weckeralarm
-  let alarmFired = false;
 
   const goHome = () => { mode = "home"; M = {}; };
+  const inGame = () => ["select", "react", "knobel"].includes(mode);
 
-  function startSelect(game, now) {
+  function startChoice(now) {
+    const v = choice();
+    if (v === "clock") { mode = "clock"; M = {}; sfx.beep(); return; }
+    const [game, level] = v.split("-");
     mode = "select";
-    M = { game, level: 1, max: game === "react" ? 2 : 3, until: now + 1500 };
+    M = { game, level: Number(level), until: now + 1300 };
+    sfx.klack();
   }
 
   // Reaktionsspiel
@@ -482,19 +517,12 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     else { M.acc += now - M.runStart; M.paused = true; }
     sfx.beep();
   }
-
-  function fullReset() {
-    S = freshMemory(S.rec);
-    save();
-    ring = null; alarmFired = false;
-    mode = "reset";
-    M = {};
-  }
+  function abort() { goHome(); sfx.beep(); }
 
   // ---------- Tasten ----------
-  function chordCheck(now, revert) {
-    if ([1, 2, 3].every(n => held.has(n))) { fullReset(); return true; }
-    if ([3, 4, 5].every(n => held.has(n)) && mode === "knobel") { knobelPause(now, revert); return true; }
+  function chordCheck(now) {
+    if ([1, 2, 3].every(n => held.has(n)) && mode !== "home") { abort(); return true; }
+    if ([3, 4, 5].every(n => held.has(n)) && mode === "knobel") { knobelPause(now, true); return true; }
     return false;
   }
 
@@ -504,64 +532,12 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     held.add(k);
     lastKeyAt = now;
     sfx.klack();
-    if (ring) { ring = null; return; }
-    if (chordCheck(now, true)) return;
-    dispatch(k, now);
+    if (chordCheck(now)) return;
+    if (mode === "react") reactPress(k, now);
+    else if (mode === "knobel") knobelPress(k, now);
+    else if (mode === "off") goHome();
   }
-  function keyUp(k) {
-    if (!held.delete(k)) return;
-    if (mode === "reset" && ![1, 2, 3].some(n => held.has(n))) { goHome(); sfx.beep(); }
-  }
-
-  function dispatch(k, now) {
-    switch (mode) {
-      case "uninit": case "reset": return;
-      case "home":
-        if (k === 6) startSelect("react", now);
-        else if (k === 2) startSelect("knobel", now);
-        else if (k === 1) mode = "clock";
-        return;
-      case "select":
-        if (k === (M.game === "react" ? 6 : 2)) { M.level = M.level % M.max + 1; M.until = now + 1500; }
-        else if (k === 1) goHome();
-        return;
-      case "react": return reactPress(k, now);
-      case "reactOver":
-        if (now < lockUntil) return;
-        if (k === 1) goHome(); else if (k === 6) startSelect("react", now);
-        return;
-      case "knobel": return knobelPress(k, now);
-      case "knobelDone":
-        if (now < lockUntil) return;
-        if (k === 1) goHome(); else if (k === 2) startSelect("knobel", now);
-        return;
-      case "off": goHome(); return;
-      case "clock":
-        if (k === 1) goHome();
-        else if (k === 2) { const { h, m } = hhmm(clockMs()); setClock(h * 3600000 + m * 60000, false); mode = "clockSet"; }
-        else if (k === 6) mode = "alarm";
-        return;
-      case "clockSet": return adjustClock(k);
-      case "alarm": return adjustAlarm(k);
-    }
-  }
-  function adjustClock(k) {
-    let { h, m } = hhmm(clockMs());
-    if (k === 5) h = (h + 1) % 24;
-    else if (k === 3) m = (m + 1) % 60;
-    else if (k === 1) { setClock(h * 3600000 + m * 60000, true); mode = "clock"; return; }
-    else return;
-    setClock(h * 3600000 + m * 60000, false);
-  }
-  function adjustAlarm(k) {
-    const al = S.alarm;
-    if (k === 4) al.on = !al.on;
-    else if (k === 5) { al.h = (al.h + 1) % 24; al.on = true; }
-    else if (k === 3) { al.m = (al.m + 1) % 60; al.on = true; }
-    else if (k === 1) mode = "clock";
-    alarmFired = true; // nicht sofort klingeln, wenn man gerade die aktuelle Minute einstellt
-    save();
-  }
+  function keyUp(k) { held.delete(k); }
 
   // ---------- Zeitablauf ----------
   function update(now) {
@@ -576,25 +552,12 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
       if (now - lastKeyAt > 120000) knobelPause(now, false);
       else if (M.level === 1 && knobelElapsed(now) >= 200000) { mode = "off"; sfx.bad(); }
     }
-    // Wecker
-    if (S.init && S.alarm.on && S.clock.running) {
-      const { h, m } = hhmm(clockMs());
-      const match = h === S.alarm.h && m === S.alarm.m;
-      if (match && !alarmFired) { ring = { until: now + 60000, next: now, i: 0 }; alarmFired = true; }
-      if (!match) alarmFired = false;
-    }
-    if (ring) {
-      if (now > ring.until) ring = null;
-      else if (now >= ring.next) { tone(2400, 0.07, "square", 0.05); ring.i++; ring.next = now + (ring.i % 4 === 0 ? 650 : 110); }
-    }
   }
 
   function view(now) {
-    const v = { d: [0, 0, 0, 0], colon: false, bell: false, blank: false };
-    const blinkSlow = Math.floor(now / 500) % 2 === 0;
-    const showClock = ms => { const { h, m } = hhmm(ms); v.d = text4(two(h) + two(m)); };
+    const v = { d: [0, 0, 0, 0], colon: false, blank: false };
     switch (mode) {
-      case "uninit": case "reset": case "off": v.blank = true; break;
+      case "off": v.blank = true; break;
       case "home": v.d = [ALL, ALL, ALL, ALL]; break;
       case "select": v.d = [CH[M.level], 0, 0, 0]; break;
       case "react": if (now >= M.flickerUntil) v.d = text4(M.value); break;
@@ -612,42 +575,60 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
         v.colon = true;
         break;
       }
-      case "clock": showClock(clockMs()); v.colon = blinkSlow; v.bell = S.alarm.on; break;
-      case "clockSet": showClock(clockMs()); v.colon = true; v.bell = S.alarm.on; break;
-      case "alarm":
-        if (S.alarm.on) { v.d = text4(two(S.alarm.h) + two(S.alarm.m)); v.colon = true; v.bell = true; }
-        else v.d = text4("----");
+      case "clock": {
+        const d = new Date();
+        v.d = text4(two(d.getHours()) + two(d.getMinutes()));
+        v.colon = Math.floor(now / 500) % 2 === 0;
         break;
+      }
     }
-    if (ring) { v.bell = Math.floor(now / 200) % 2 === 0; v.blank = false; }
     return v;
   }
 
   function statusText(now) {
-    if (ring) return "<b>Der Wecker klingelt!</b> Beliebige Taste drücken.";
     switch (mode) {
-      case "uninit": return "Zum Einschalten die Tasten <b>1, 2 und 3</b> gleichzeitig drücken.";
-      case "reset": return "Alle Speicher gelöscht. Tasten loslassen.";
-      case "home": return "Grundstellung. <b>6</b> Reaktionsspiel, <b>2</b> Knobelspiel, <b>1</b> Uhr.";
-      case "select":
-        return M.game === "react"
-          ? `Reaktionsspiel Stufe <b>${M.level}</b>. ${M.level < 2 ? "Nochmal 6 für Stufe 2." : "Gleich geht's los!"}`
-          : `Knobelspiel Stufe <b>${M.level}</b>. ${M.level < 3 ? `Nochmal 2 für Stufe ${M.level + 1}.` : "Gleich geht's los!"}`;
-      case "react": return `Stufe ${M.level} · <b>${M.score}</b> Punkte · ${M.hits} ${M.hits === 1 ? "Treffer" : "Treffer"}`;
-      case "reactOver": return `${M.reason} <b>${M.score}</b> Punkte${M.record ? ", neuer Rekord!" : "."} <b>6</b> nächster Spieler, <b>1</b> Grundstellung.`;
+      case "home": return "Spiel auswählen und <b>Start</b> drücken.";
+      case "select": return `${M.game === "react" ? "Reaktionsspiel" : "Knobelspiel"} Stufe <b>${M.level}</b>. Gleich geht's los!`;
+      case "react": return `Stufe ${M.level} · <b>${M.score}</b> Punkte · ${M.hits} Treffer`;
+      case "reactOver": return `${M.reason} <b>${M.score}</b> Punkte${M.record ? ", neuer Rekord!" : "."} Nächster Spieler: <b>Start</b>.`;
       case "knobel": {
-        if (M.paused) return "Pause. <b>3, 4 und 5</b> gleichzeitig drücken, um weiterzuspielen.";
+        if (M.paused) return "Pause. <b>Weiter</b> drücken oder 3, 4 und 5 gleichzeitig.";
         const which = ["rechte", "mittlere", "linke"][M.stage];
         const extra = M.level === 3 ? " Immer eine Taste gedrückt halten!" : "";
         return `Knobelspiel Stufe ${M.level}: Baue die <b>${which} 8</b>.${extra}`;
       }
-      case "knobelDone": return `Geschafft in <b>${mmss(M.time)}</b>${M.record ? ", neuer Rekord!" : "."} <b>2</b> nochmal, <b>1</b> Grundstellung.`;
-      case "off": return "Zeit abgelaufen, das Gerät hat sich ausgeschaltet. Beliebige Taste schaltet es wieder ein.";
-      case "clock": return "Uhr. <b>2</b> stellen, <b>6</b> Wecker, <b>1</b> Grundstellung.";
-      case "clockSet": return "Uhr stellen: <b>5</b> Stunden, <b>3</b> Minuten, <b>1</b> fertig.";
-      case "alarm": return "Wecker: <b>4</b> ein/aus, <b>5</b> Stunden, <b>3</b> Minuten, <b>1</b> zurück zur Uhr.";
+      case "knobelDone": return `Geschafft in <b>${mmss(M.time)}</b>${M.record ? ", neuer Rekord!" : "."}`;
+      case "off": return "Zeit abgelaufen, das Gerät hat sich ausgeschaltet.";
+      case "clock": return "Uhrzeit.";
     }
     return "";
+  }
+
+  // ---------- Auswahlfeld ----------
+  const radios = [...document.querySelectorAll('input[name="mode"]')];
+  const choice = () => (radios.find(r => r.checked) || radios[0]).value;
+  if (S.choice) { const r = radios.find(x => x.value === S.choice); if (r) r.checked = true; }
+  radios.forEach(r => r.addEventListener("change", () => {
+    S.choice = r.value; save();
+    if (mode === "clock" || mode === "reactOver" || mode === "knobelDone" || mode === "off") goHome();
+  }));
+  const startBtn = $("startBtn"), pauseBtn = $("pauseBtn");
+  startBtn.addEventListener("click", () => {
+    const now = performance.now();
+    if (inGame()) abort(); else startChoice(now);
+  });
+  pauseBtn.addEventListener("click", () => { if (mode === "knobel") knobelPause(performance.now(), false); });
+  let lastControls = "";
+  function controls() {
+    const game = inGame();
+    const sig = mode + (M.paused ? "p" : "");
+    if (sig === lastControls) return;
+    lastControls = sig;
+    startBtn.textContent = game ? "Abbrechen" : (mode === "reactOver" || mode === "knobelDone" || mode === "off") ? "Nochmal" : "Start";
+    startBtn.classList.toggle("secondary", game);
+    pauseBtn.hidden = mode !== "knobel";
+    pauseBtn.textContent = M.paused ? "Weiter" : "Pause";
+    radios.forEach(r => { r.disabled = game; });
   }
 
   // ---------- Darstellung ----------
@@ -663,6 +644,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
       el.classList.toggle("good", (flash[n] || 0) > now);
       el.classList.toggle("target", mode === "reactOver" && M.need.has(n));
     });
+    controls();
     const st = statusText(now);
     if (st !== lastStatus) { statusEl.innerHTML = st; lastStatus = st; }
     requestAnimationFrame(frame);
@@ -685,29 +667,16 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   });
   document.addEventListener("keydown", e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === " " && !e.repeat && !inGame() && !(e.target instanceof HTMLButtonElement) && !(e.target instanceof HTMLInputElement)) {
+      e.preventDefault(); startChoice(performance.now()); return;
+    }
     const n = Number(e.key);
     if (!(n >= 1 && n <= 6)) return;
     e.preventDefault();
-    if (e.repeat) {
-      // Gedrückt halten zum schnellen Verstellen von Uhr und Wecker
-      if ((mode === "clockSet" || mode === "alarm") && (n === 3 || n === 5)) dispatch(n, performance.now());
-      return;
-    }
-    keyDown(n);
+    if (!e.repeat) keyDown(n);
   });
   document.addEventListener("keyup", e => { const n = Number(e.key); if (n >= 1 && n <= 6) keyUp(n); });
   window.addEventListener("blur", () => [...held].forEach(keyUp));
-
-  function pressChord(keys) {
-    const now = performance.now();
-    sfx.klack();
-    keys.forEach(k => held.add(k));
-    lastKeyAt = now;
-    if (ring) ring = null; else chordCheck(now, false);
-    setTimeout(() => keys.forEach(keyUp), 300);
-  }
-  $("chordReset").addEventListener("click", () => pressChord([1, 2, 3]));
-  $("chordPause").addEventListener("click", () => pressChord([3, 4, 5]));
 
   showRecords();
   requestAnimationFrame(frame);
