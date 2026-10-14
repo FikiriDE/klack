@@ -9,19 +9,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@500;700;800&family=Share+Tech+Mono&display=swap">
 <style>
-/* Layout: ein Spielzeug auf dem Tisch – Titelzeile, Zählerleiste, gelbes Dreiecksgerät mit LCD in der Mitte, Startknopf darunter. */
+/* Layout: ein Spielzeug auf dem Tisch – Titel, gelbes Dreiecksgerät mit vierstelliger LCD-Anzeige, darunter Statuszeile, Kombi-Tasten, Rekorde und Kurzanleitung. */
 :root {
-  --table: #24418a;        /* blauer Tisch */
+  --table: #24418a;
   --table-deep: #182d63;
-  --plastic: #f5c21b;      /* gelbes Gehäuse */
+  --plastic: #f5c21b;
   --plastic-edge: #c8920a;
-  --button: #d8392c;       /* rote Tasten */
+  --button: #d8392c;
   --button-dark: #8f1f17;
   --hit: #2fa65a;
-  --lcd: #a7b78c;          /* LCD-Fläche */
+  --lcd: #a7b78c;
   --lcd-ink: #1d2915;
-  --paper: #f4f1e8;        /* Schrift auf dem Tisch */
+  --paper: #f4f1e8;
   --muted: #b9c4e6;
+  --panel: rgba(0,0,0,.22);
   --font-display: "Bungee", "Arial Black", Impact, sans-serif;
   --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
   --font-lcd: "Share Tech Mono", ui-monospace, "Courier New", monospace;
@@ -44,7 +45,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  padding-block: 18px 24px;
+  padding-block: 18px 32px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -56,142 +57,130 @@ h1 {
   margin: 0;
   color: var(--plastic);
   text-shadow: 0 3px 0 var(--plastic-edge), 0 6px 14px rgba(0,0,0,.35);
-  text-wrap: balance;
   text-align: center;
-}
-.stats {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 84px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: rgba(0,0,0,.22);
-}
-.stat span {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.stat strong {
-  font-family: var(--font-lcd);
-  font-size: 26px;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
 }
 
 /* Gerät */
 .device {
   position: relative;
-  width: min(100%, 540px, calc((100dvh - 270px) * 100 / 88));
+  width: min(100%, 560px, calc((100dvh - 260px) * 100 / 88));
   min-width: 260px;
   max-width: 100%;
   aspect-ratio: 100 / 88;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
+  touch-action: none;
 }
 .device svg.body { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .key {
-  --size: 13%;
   position: absolute;
   left: var(--x);
   top: calc(var(--y) / 88 * 100%);
-  width: var(--size);
+  width: 13%;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border: 0;
   border-radius: 50%;
   padding: 0;
   cursor: pointer;
+  touch-action: none;
   font-family: var(--font-display);
   font-size: clamp(16px, 4.6vw, 30px);
   color: #fff3ea;
   background: radial-gradient(circle at 35% 30%, #ff7a63 0%, var(--button) 45%, var(--button-dark) 100%);
   box-shadow: 0 6px 0 var(--button-dark), 0 9px 14px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25);
   text-shadow: 0 1px 0 rgba(0,0,0,.35);
-  transition: transform 60ms, box-shadow 60ms, background 120ms;
+  transition: transform 50ms, box-shadow 50ms, background 120ms;
 }
 .key:focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
 .key.down { transform: translate(-50%, calc(-50% + 4px)); box-shadow: 0 2px 0 var(--button-dark), 0 3px 6px rgba(0,0,0,.35), inset 0 -2px 4px rgba(0,0,0,.25); }
-.key.good { background: radial-gradient(circle at 35% 30%, #8ff0ab 0%, var(--hit) 50%, #17602f 100%); box-shadow: 0 2px 0 #17602f, 0 0 22px rgba(120,255,160,.7); }
-.key.bad { animation: shake 320ms; background: radial-gradient(circle at 35% 30%, #555 0%, #2b2b2b 60%, #111 100%); box-shadow: 0 6px 0 #111; }
-.key.target { animation: pulse 700ms infinite alternate; }
-@keyframes shake { 0%,100% { margin-left: 0 } 25% { margin-left: -6px } 75% { margin-left: 6px } }
-@keyframes pulse { from { box-shadow: 0 6px 0 var(--button-dark), 0 0 0 0 rgba(255,255,255,.0); } to { box-shadow: 0 6px 0 var(--button-dark), 0 0 0 8px rgba(255,255,255,.55); } }
+.key.good { background: radial-gradient(circle at 35% 30%, #8ff0ab 0%, var(--hit) 50%, #17602f 100%); }
+.key.target { animation: pulse 600ms infinite alternate; }
+@keyframes pulse { from { box-shadow: 0 6px 0 var(--button-dark), 0 0 0 0 rgba(255,255,255,0); } to { box-shadow: 0 6px 0 var(--button-dark), 0 0 0 8px rgba(255,255,255,.6); } }
 
 .screen {
   position: absolute;
-  left: 39.5%;
-  width: 21%;
-  top: calc(31 / 88 * 100%);
-  height: calc(34 / 88 * 100%);
+  left: 31%;
+  width: 38%;
+  top: calc(49.5 / 88 * 100%);
+  height: calc(15.5 / 88 * 100%);
   box-sizing: border-box;
-  border-radius: 8px;
+  border-radius: 7px;
   background: linear-gradient(160deg, #b4c398 0%, var(--lcd) 60%, #98a87d 100%);
-  border: 5px solid #3a3a34;
+  border: 4px solid #3a3a34;
   box-shadow: inset 0 3px 8px rgba(0,0,0,.35), 0 2px 0 rgba(255,255,255,.4);
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  padding: 4px 5px 5px;
-  color: var(--lcd-ink);
-  font-family: var(--font-lcd);
+  padding: 3px 4px;
 }
-.screen .top {
-  display: flex;
-  justify-content: space-between;
-  font-size: clamp(9px, 2.1vw, 13px);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-.screen svg { width: 100%; height: 100%; min-height: 0; }
-.seg { fill: var(--lcd-ink); opacity: .08; transition: opacity 40ms; }
+.screen svg { display: block; width: 100%; height: 100%; }
+.seg { fill: var(--lcd-ink); opacity: .07; }
 .seg.on { opacity: .92; }
-.timer { height: 5px; border-radius: 3px; background: rgba(29,41,21,.15); overflow: hidden; }
-.timer i { display: block; height: 100%; width: 100%; background: var(--lcd-ink); transform-origin: left; }
+.screen.blank .seg.on { opacity: .07; }
 
-.controls { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
-.start {
-  font-family: var(--font-display);
-  font-size: 20px;
-  padding: 12px 28px;
-  border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-  color: #3a2a00;
-  background: var(--plastic);
-  box-shadow: 0 5px 0 var(--plastic-edge), 0 8px 16px rgba(0,0,0,.3);
+/* Unter dem Gerät */
+.status {
+  margin: 0;
+  min-height: 2.8em;
+  max-width: 34ch;
+  text-align: center;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.4;
+  text-wrap: balance;
 }
-.start:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--plastic-edge); }
-.start:focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
-.message { margin: 0; min-height: 1.4em; font-weight: 700; font-size: 17px; text-wrap: balance; }
-.hint { margin: 0; font-size: 13px; color: var(--muted); max-width: 40ch; }
-kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.25); padding: 1px 5px; border-radius: 4px; }
+.status b { color: var(--plastic); font-weight: 800; }
+.chords { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.chord {
+  font: 800 14px/1 var(--font-body);
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 2px solid var(--plastic);
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+}
+.chord span { font-family: var(--font-lcd); color: var(--plastic); margin-right: 4px; }
+.chord:active { background: rgba(245,194,27,.18); }
+.chord:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px; }
+
+.records {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100%, 560px);
+}
+.rec { background: var(--panel); border-radius: 10px; padding: 6px 4px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.rec span { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.rec strong { font: 400 20px/1.1 var(--font-lcd); font-variant-numeric: tabular-nums; }
+@media (max-width: 420px) {
+  .records { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .rec { grid-column: span 2; }
+  .rec:nth-child(-n+2) { grid-column: span 3; }
+}
+
+details.help {
+  width: min(100%, 560px);
+  box-sizing: border-box;
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+details.help summary { cursor: pointer; font-weight: 800; padding-block: 4px; }
+details.help summary:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+.help h2 { font-family: var(--font-display); font-weight: 400; font-size: 15px; color: var(--plastic); letter-spacing: .03em; margin: 14px 0 4px; }
+.help p, .help li { font-size: 14px; line-height: 1.5; color: #e3e6f2; }
+.help p { margin: 4px 0; }
+.help ul { margin: 4px 0; padding-left: 20px; }
+kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 4px; color: var(--paper); }
 
 @media (prefers-reduced-motion: reduce) {
-  .key, .seg { transition: none; }
-  .key.bad, .key.target { animation: none; }
+  .key { transition: none; }
+  .key.target { animation: none; outline: 3px solid var(--paper); }
 }
 </style>
 </head>
 <body>
 <main class="app">
   <h1>Knobel Klack</h1>
-
-  <div class="stats" aria-live="polite">
-    <div class="stat"><span>Treffer</span><strong id="score">0</strong></div>
-    <div class="stat"><span>Tempo</span><strong id="level">1</strong></div>
-    <div class="stat"><span>Rekord</span><strong id="best">0</strong></div>
-  </div>
 
   <div class="device" id="device">
     <svg class="body" viewBox="0 0 100 88" aria-hidden="true">
@@ -202,186 +191,526 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.25); padding: 1px 5p
     </svg>
 
     <button class="key" data-n="1" style="--x:50%;--y:21" aria-label="Taste 1">1</button>
-    <button class="key" data-n="2" style="--x:69%;--y:45" aria-label="Taste 2">2</button>
-    <button class="key" data-n="3" style="--x:81%;--y:72" aria-label="Taste 3">3</button>
-    <button class="key" data-n="4" style="--x:50%;--y:73" aria-label="Taste 4">4</button>
-    <button class="key" data-n="5" style="--x:19%;--y:72" aria-label="Taste 5">5</button>
-    <button class="key" data-n="6" style="--x:31%;--y:45" aria-label="Taste 6">6</button>
+    <button class="key" data-n="2" style="--x:64.5%;--y:40" aria-label="Taste 2">2</button>
+    <button class="key" data-n="3" style="--x:82%;--y:72" aria-label="Taste 3">3</button>
+    <button class="key" data-n="4" style="--x:50%;--y:74" aria-label="Taste 4">4</button>
+    <button class="key" data-n="5" style="--x:18%;--y:72" aria-label="Taste 5">5</button>
+    <button class="key" data-n="6" style="--x:35.5%;--y:40" aria-label="Taste 6">6</button>
 
-    <div class="screen" role="img" aria-label="Anzeige" id="screen">
-      <div class="top"><span id="lcdScore">000</span><span id="lcdState">BEREIT</span></div>
-      <svg viewBox="-4 0 68 100" preserveAspectRatio="xMidYMid meet" id="digit"></svg>
-      <div class="timer"><i id="bar"></i></div>
+    <div class="screen" id="screen" role="img" aria-label="Anzeigenfeld">
+      <svg id="lcd" viewBox="-34 -4 314 108" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
   </div>
 
-  <div class="controls">
-    <p class="message" id="message">Drücke die Zahl, die im Bildschirm erscheint.</p>
-    <button class="start" id="start">Start</button>
-    <p class="hint">Tasten antippen oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. <kbd>Leertaste</kbd> startet.</p>
+  <p class="status" id="status" aria-live="polite"></p>
+
+  <div class="chords">
+    <button class="chord" id="chordReset"><span>1+2+3</span>Löschen</button>
+    <button class="chord" id="chordPause"><span>3+4+5</span>Pause</button>
   </div>
+
+  <div class="records" aria-label="Rekorde">
+    <div class="rec"><span>Reaktion 1</span><strong id="r1">–</strong></div>
+    <div class="rec"><span>Reaktion 2</span><strong id="r2">–</strong></div>
+    <div class="rec"><span>Knobel 1</span><strong id="k1">–</strong></div>
+    <div class="rec"><span>Knobel 2</span><strong id="k2">–</strong></div>
+    <div class="rec"><span>Knobel 3</span><strong id="k3">–</strong></div>
+  </div>
+
+  <details class="help">
+    <summary>Kurzanleitung</summary>
+    <h2>Bedienen</h2>
+    <p>Tasten antippen (mehrere Finger gleichzeitig gehen auch) oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. Für „gleichzeitig drücken“ die Tasten zusammen halten oder die Knöpfe unter dem Gerät nehmen.</p>
+    <h2>Jetzt geht's los</h2>
+    <ul>
+      <li>Beim ersten Einschalten <b>1, 2 und 3 gleichzeitig</b> drücken. Speicher, Uhr und Wecker stehen dann auf 00:00.</li>
+      <li>Loslassen: Die Anzeige zeigt viermal die 8. Das ist die Grundstellung.</li>
+      <li>In der Grundstellung: <b>6</b> Reaktionsspiel, <b>2</b> Knobelspiel, <b>1</b> Uhrzeit.</li>
+      <li>Mit <b>1</b> kommst du immer wieder in die Grundstellung zurück.</li>
+    </ul>
+    <h2>Reaktionsspiel</h2>
+    <ul>
+      <li>Taste 6 einmal: Stufe 1, nur Zahlen von 1 bis 6, je 1,5 Sekunden Zeit.</li>
+      <li>Taste 6 zweimal: Stufe 2, auch zweistellige Zahlen. Beide Tasten innerhalb von 2 Sekunden drücken, zusammen oder in beliebiger Reihenfolge.</li>
+      <li>Jede richtige Zahl bringt so viele Punkte, wie sie anzeigt. Das Tempo wird immer schneller.</li>
+      <li>Falsche Taste oder zu langsam: Spiel aus, der Punktestand erscheint, der nächste Spieler ist dran (Taste 6).</li>
+    </ul>
+    <h2>Knobelspiel</h2>
+    <ul>
+      <li>Jeder Tastendruck lässt einen der sieben Striche der 8 aufleuchten oder wieder verlöschen. Finde heraus, nach welchem System.</li>
+      <li>Erst die rechte 8 bauen, dann die mittlere, dann die linke. Die Zeit wird gestoppt und am Schluss angezeigt.</li>
+      <li>Taste 2 einmal: Stufe 1, höchstens 3:20 Minuten. In den letzten 20 Sekunden blinkt die Anzeige, danach schaltet sich das Gerät aus.</li>
+      <li>Taste 2 zweimal: Stufe 2, ohne Zeitlimit und schwerer.</li>
+      <li>Taste 2 dreimal: Stufe 3. Du musst immer eine Taste gedrückt halten, während du die nächste drückst (Tastatur oder zwei Finger).</li>
+      <li><b>3, 4 und 5 gleichzeitig</b>: Pause und weiter. Nach zwei Minuten ohne Tastendruck macht das Gerät selbst Pause.</li>
+      <li><b>1, 2 und 3 gleichzeitig</b>: alles löschen und von vorne.</li>
+    </ul>
+    <h2>Uhr und Wecker</h2>
+    <ul>
+      <li>Uhr stellen: Taste 2 (Doppelpunkt blinkt nicht mehr), dann 5 für Stunden und 3 für Minuten, mit 1 läuft die Uhr weiter.</li>
+      <li>Wecker: Bei laufender Uhr erst 6, dann 4. Taste 4 schaltet den Alarm ein oder aus (aus: vier Striche). Mit 5 und 3 die Weckzeit stellen, mit 1 zurück.</li>
+      <li>Das Glockensymbol zeigt einen eingeschalteten Wecker. Piepst er, stoppt ihn eine beliebige Taste. Er klingelt nur, solange diese Seite offen ist.</li>
+    </ul>
+  </details>
 </main>
 
 <script>
 (() => {
-  // --- Einstellungen ---
-  const START_TIME = 2000;  // ms für die erste Zahl
-  const MIN_TIME = 380;     // schnellstes Tempo
-  const FACTOR = 0.955;     // jede richtige Eingabe macht das Spiel schneller
-  const GAP = 180;          // kurze Pause mit leerem Bildschirm zwischen zwei Zahlen
+  const $ = id => document.getElementById(id);
+  const DAY = 86400000;
+  const STORE = "knobelklack-v2";
 
-  // --- Siebensegment-Anzeige ---
-  const SEGMENTS = { 1: "bc", 2: "abged", 3: "abgcd", 4: "fgbc", 5: "afgcd", 6: "afgedc" };
-  const digitSvg = document.getElementById("digit");
-  const T = 9, G = 1.6, L = 8, R = 52, TOP = 8, MID = 50, BOT = 92;
-  const h = (x, y, len) => [[x, y], [x + T/2, y - T/2], [x + len - T/2, y - T/2], [x + len, y], [x + len - T/2, y + T/2], [x + T/2, y + T/2]];
-  const v = (x, y, len) => [[x, y], [x + T/2, y + T/2], [x + T/2, y + len - T/2], [x, y + len], [x - T/2, y + len - T/2], [x - T/2, y + T/2]];
-  const shapes = {
-    a: h(L + G, TOP, R - L - 2*G), g: h(L + G, MID, R - L - 2*G), d: h(L + G, BOT, R - L - 2*G),
-    f: v(L, TOP + G, MID - TOP - 2*G), e: v(L, MID + G, BOT - MID - 2*G),
-    b: v(R, TOP + G, MID - TOP - 2*G), c: v(R, MID + G, BOT - MID - 2*G),
-  };
-  const segEls = {};
-  const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  group.setAttribute("transform", "skewX(-6) translate(10 0)");
-  for (const [name, pts] of Object.entries(shapes)) {
-    const p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    p.setAttribute("points", pts.map(q => q.join(",")).join(" "));
-    p.setAttribute("class", "seg");
-    group.appendChild(p);
-    segEls[name] = p;
-  }
-  digitSvg.appendChild(group);
-  function showDigit(n) {
-    const on = n ? SEGMENTS[n] : "";
-    for (const s in segEls) segEls[s].classList.toggle("on", on.includes(s));
-  }
+  // ---------- Siebensegment-Anzeige (4 Stellen, Doppelpunkt, Glocke) ----------
+  const A = 1, B = 2, C = 4, D = 8, E = 16, F = 32, G = 64, ALL = 127;
+  const CH = { "0": 63, "1": 6, "2": 91, "3": 79, "4": 102, "5": 109, "6": 125, "7": 7, "8": 127, "9": 111, "-": 64, " ": 0 };
+  const NS = "http://www.w3.org/2000/svg";
+  const lcd = $("lcd");
+  const T = 9, GP = 1.6, L = 8, R = 52, TOP = 8, MID = 50, BOT = 92;
+  const hs = (x, y, len) => [[x, y], [x + T/2, y - T/2], [x + len - T/2, y - T/2], [x + len, y], [x + len - T/2, y + T/2], [x + T/2, y + T/2]];
+  const vs = (x, y, len) => [[x, y], [x + T/2, y + T/2], [x + T/2, y + len - T/2], [x, y + len], [x - T/2, y + len - T/2], [x - T/2, y + T/2]];
+  const SHAPES = [
+    [A, hs(L + GP, TOP, R - L - 2*GP)], [B, vs(R, TOP + GP, MID - TOP - 2*GP)], [C, vs(R, MID + GP, BOT - MID - 2*GP)],
+    [D, hs(L + GP, BOT, R - L - 2*GP)], [E, vs(L, MID + GP, BOT - MID - 2*GP)], [F, vs(L, TOP + GP, MID - TOP - 2*GP)],
+    [G, hs(L + GP, MID, R - L - 2*GP)],
+  ];
+  const DIGIT_X = [0, 62, 148, 210];
+  const segEls = DIGIT_X.map(x => {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("transform", `translate(${x} 0) skewX(-6) translate(6 0)`);
+    lcd.appendChild(g);
+    return SHAPES.map(([bit, pts]) => {
+      const p = document.createElementNS(NS, "polygon");
+      p.setAttribute("points", pts.map(q => q.join(",")).join(" "));
+      p.setAttribute("class", "seg");
+      g.appendChild(p);
+      return [bit, p];
+    });
+  });
+  const colonEls = [32, 68].map(cy => {
+    const c = document.createElementNS(NS, "circle");
+    c.setAttribute("cx", "130"); c.setAttribute("cy", String(cy)); c.setAttribute("r", "5.5");
+    c.setAttribute("class", "seg");
+    lcd.appendChild(c);
+    return c;
+  });
+  const bellEl = document.createElementNS(NS, "path");
+  bellEl.setAttribute("d", "M-18 6 c-7 0 -10 6 -10 13 v8 l-4 5 h28 l-4 -5 v-8 c0 -7 -3 -13 -10 -13 z M-22 34 a4 4 0 0 0 8 0 z");
+  bellEl.setAttribute("class", "seg");
+  lcd.appendChild(bellEl);
 
-  // --- Ton ---
+  let shown = "";
+  function paint(view) {
+    const sig = view.d.join(",") + view.colon + view.bell + view.blank;
+    if (sig === shown) return;
+    shown = sig;
+    view.d.forEach((mask, i) => segEls[i].forEach(([bit, el]) => el.classList.toggle("on", !view.blank && !!(mask & bit))));
+    colonEls.forEach(el => el.classList.toggle("on", !view.blank && view.colon));
+    bellEl.classList.toggle("on", !view.blank && view.bell);
+  }
+  // Text rechtsbündig auf 4 Stellen
+  const text4 = s => String(s).slice(-4).padStart(4, " ").split("").map(ch => CH[ch] ?? 0);
+  const two = n => String(n).padStart(2, "0");
+
+  // ---------- Ton ----------
   let audio;
-  const PITCH = { 1: 523, 2: 587, 3: 659, 4: 698, 5: 784, 6: 880 };
-  function tone(freq, dur = 0.09, type = "square", vol = 0.06) {
+  function tone(freq, dur = 0.08, type = "square", vol = 0.05, delay = 0) {
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-      const o = audio.createOscillator(), gn = audio.createGain();
+      if (audio.state === "suspended") audio.resume();
+      const t0 = audio.currentTime + delay;
+      const o = audio.createOscillator(), g = audio.createGain();
       o.type = type; o.frequency.value = freq;
-      gn.gain.setValueAtTime(vol, audio.currentTime);
-      gn.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + dur);
-      o.connect(gn).connect(audio.destination);
-      o.start(); o.stop(audio.currentTime + dur);
+      g.gain.setValueAtTime(vol, t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g).connect(audio.destination);
+      o.start(t0); o.stop(t0 + dur + 0.02);
     } catch (e) {}
   }
+  const sfx = {
+    klack: () => tone(1900, 0.025, "square", 0.025),
+    beep: () => tone(2100, 0.14, "square", 0.05),
+    good: n => tone(500 + n * 60, 0.07, "square", 0.045),
+    digit: () => { tone(1320, 0.07); tone(1760, 0.1, "square", 0.05, 0.08); },
+    win: () => [1046, 1318, 1568, 2093].forEach((f, i) => tone(f, 0.14, "square", 0.05, i * 0.13)),
+    bad: () => tone(130, 0.5, "sawtooth", 0.08),
+    reject: () => tone(220, 0.06, "triangle", 0.05),
+  };
 
-  // --- Spielzustand ---
-  const $ = id => document.getElementById(id);
-  const keys = [...document.querySelectorAll(".key")];
-  const keyFor = n => keys[n - 1];
-  let state = "idle";     // idle | gap | wait | over
-  let score = 0, limit = START_TIME, target = 0, shownAt = 0, raf = 0, gapTimer = 0;
-  let best = 0;
-  try { best = parseInt(localStorage.getItem("knobelklack-best") || "0", 10) || 0; } catch (e) {}
-  $("best").textContent = best;
+  // ---------- Gespeicherter Zustand (Uhr, Wecker, Rekorde) ----------
+  function freshMemory(rec) {
+    return { init: true, clock: { offset: 0, base: Date.now(), running: true }, alarm: { h: 0, m: 0, on: false }, rec: rec || {} };
+  }
+  let S;
+  try { S = JSON.parse(localStorage.getItem(STORE)); } catch (e) {}
+  if (!S || !S.clock || !S.alarm) S = { ...freshMemory(), init: false };
+  S.rec = S.rec || {};
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
 
-  const levelOf = s => Math.floor(s / 5) + 1;
-  function updateStats() {
-    $("score").textContent = score;
-    $("level").textContent = levelOf(score);
-    $("lcdScore").textContent = String(score).padStart(3, "0");
+  const clockMs = () => {
+    const c = S.clock;
+    return c.running ? (((c.offset + Date.now() - c.base) % DAY) + DAY) % DAY : c.offset;
+  };
+  const setClock = (ms, running) => { S.clock = { offset: ((ms % DAY) + DAY) % DAY, base: Date.now(), running }; save(); };
+  const hhmm = ms => ({ h: Math.floor(ms / 3600000), m: Math.floor(ms % 3600000 / 60000) });
+  const mmss = ms => { const s = Math.floor(ms / 1000); return `${Math.min(99, Math.floor(s / 60))}:${two(s % 60)}`; };
+
+  function showRecords() {
+    $("r1").textContent = S.rec.r1 ?? "–";
+    $("r2").textContent = S.rec.r2 ?? "–";
+    for (const k of ["k1", "k2", "k3"]) $(k).textContent = S.rec[k] != null ? mmss(S.rec[k]) : "–";
   }
 
-  function start() {
-    clearTimeout(gapTimer); cancelAnimationFrame(raf);
-    keys.forEach(k => k.classList.remove("good", "bad", "target"));
-    score = 0; limit = START_TIME; target = 0;
-    updateStats();
-    $("message").textContent = "Los geht's!";
-    $("start").textContent = "Neu starten";
-    $("lcdState").textContent = "SPIEL";
-    tone(660, 0.08); setTimeout(() => tone(990, 0.12), 110);
-    nextRound(600);
+  // ---------- Spielmodi ----------
+  // uninit | reset | home | select | react | reactOver | knobel | knobelDone | off | clock | clockSet | alarm
+  let mode = S.init ? "home" : "uninit";
+  let M = {};               // Daten des aktuellen Modus
+  let lockUntil = 0;        // kurze Sperre nach Spielende gegen versehentliches Weiterdrücken
+  const held = new Set();   // gerade gedrückte Tasten
+  const flash = {};         // Taste -> grün bis Zeitpunkt
+  let lastKeyAt = performance.now();
+  let ring = null;          // Weckeralarm
+  let alarmFired = false;
+
+  const goHome = () => { mode = "home"; M = {}; };
+
+  function startSelect(game, now) {
+    mode = "select";
+    M = { game, level: 1, max: game === "react" ? 2 : 3, until: now + 1500 };
   }
 
-  function nextRound(pause = GAP) {
-    state = "gap";
-    showDigit(0);
-    $("bar").style.transform = "scaleX(1)";
-    gapTimer = setTimeout(() => {
-      let n;
-      do { n = 1 + Math.floor(Math.random() * 6); } while (n === target);
-      target = n;
-      showDigit(n);
-      shownAt = performance.now();
-      state = "wait";
-      raf = requestAnimationFrame(tick);
-    }, pause);
+  // Reaktionsspiel
+  function startReact(level, now) {
+    mode = "react";
+    M = { level, score: 0, hits: 0, last: 0 };
+    nextTarget(now);
   }
-
-  function tick(now) {
-    if (state !== "wait") return;
-    const left = 1 - (now - shownAt) / limit;
-    if (left <= 0) { $("bar").style.transform = "scaleX(0)"; return gameOver("Zu langsam!"); }
-    $("bar").style.transform = `scaleX(${left})`;
-    raf = requestAnimationFrame(tick);
-  }
-
-  function press(n) {
-    const k = keyFor(n);
-    k.classList.add("down");
-    setTimeout(() => k.classList.remove("down"), 110);
-    if (state === "idle" || state === "over") { tone(PITCH[n], 0.06, "triangle", 0.05); return; }
-    if (state !== "wait") return; // in der Pause zählt nichts
-    cancelAnimationFrame(raf);
-    if (n === target) {
-      score++;
-      limit = Math.max(MIN_TIME, limit * FACTOR);
-      updateStats();
-      tone(PITCH[n]);
-      k.classList.add("good");
-      setTimeout(() => k.classList.remove("good"), 160);
-      $("message").textContent = `${Math.round(performance.now() - shownAt)} ms`;
-      nextRound();
+  function nextTarget(now) {
+    const speed = Math.pow(0.97, M.hits);
+    let digits;
+    if (M.level === 2 && Math.random() < 0.5) {
+      const a = 1 + Math.floor(Math.random() * 6);
+      let b; do { b = 1 + Math.floor(Math.random() * 6); } while (b === a);
+      digits = [a, b];
     } else {
-      k.classList.add("bad");
-      gameOver(`Falsch – gesucht war die ${target}.`);
+      let n; do { n = 1 + Math.floor(Math.random() * 6); } while (n === M.last);
+      digits = [n];
+    }
+    M.digits = digits;
+    M.value = Number(digits.join(""));
+    M.last = M.value;
+    M.need = new Set(digits);
+    M.got = new Set();
+    M.limit = digits.length === 2 ? Math.max(800, 2000 * speed) : Math.max(420, 1500 * speed);
+    M.flickerUntil = now + 70;   // ganz kurz dunkel, damit man den Wechsel sieht
+    M.shownAt = M.flickerUntil;
+  }
+  function reactPress(k, now) {
+    if (now < M.flickerUntil) return;
+    if (!M.need.has(k)) return reactOver(`Falsche Taste! Gesucht war die <b>${M.value}</b>.`, now);
+    M.got.add(k);
+    flash[k] = now + 150;
+    if (M.got.size === M.need.size) {
+      M.score += M.value;
+      M.hits++;
+      sfx.good(k);
+      nextTarget(now);
+    }
+  }
+  function reactOver(reason, now) {
+    sfx.bad();
+    mode = "reactOver";
+    M.reason = reason;
+    lockUntil = now + 700;
+    const key = "r" + M.level;
+    M.record = M.score > 0 && M.score > (S.rec[key] || 0);
+    if (M.record) { S.rec[key] = M.score; save(); showRecords(); }
+  }
+
+  // Knobelspiel: jede Ziffer hat ihr eigenes System, aus Taste und vorheriger Taste den Strich zu bestimmen
+  const ORDERS = [
+    [A, B, C, D, E, F, G],
+    [E, D, C, G, B, A, F],
+    [G, C, F, A, E, B, D],
+  ];
+  const RULES = [
+    (k, p) => k + p,
+    (k, p) => 2 * k + p,
+    (k, p) => (k + 1) * (p + 1) - 1,
+  ];
+  function segmentFor(level, stage, k, p) {
+    const rs = level === 1 ? 0 : stage;
+    const idx = ((RULES[rs](k, p) % 7) + 7) % 7;
+    return ORDERS[level === 1 ? 0 : stage][idx];
+  }
+  function startKnobel(level, now) {
+    mode = "knobel";
+    M = { level, stage: 0, segs: [0, 0, 0, 0], prev: 0, presses: 0, acc: 0, runStart: now, paused: false, hist: [] };
+    lastKeyAt = now;
+  }
+  const knobelElapsed = now => M.acc + (M.paused ? 0 : now - M.runStart);
+  function knobelPress(k, now) {
+    if (M.paused) return;
+    if (M.level === 3 && M.presses > 0 && ![...held].some(h => h !== k)) { sfx.reject(); return; }
+    M.hist.push({ t: now, k, snap: JSON.stringify({ stage: M.stage, segs: M.segs, prev: M.prev, presses: M.presses }) });
+    if (M.hist.length > 6) M.hist.shift();
+    const pos = 3 - M.stage;
+    M.segs[pos] ^= segmentFor(M.level, M.stage, k, M.prev);
+    M.prev = k;
+    M.presses++;
+    if (M.segs[pos] === ALL) {
+      M.stage++;
+      M.prev = 0;
+      if (M.stage === 3) {
+        mode = "knobelDone";
+        M.time = knobelElapsed(now);
+        lockUntil = now + 900;
+        const key = "k" + M.level;
+        M.record = S.rec[key] == null || M.time < S.rec[key];
+        if (M.record) { S.rec[key] = M.time; save(); showRecords(); }
+        sfx.win();
+      } else sfx.digit();
+    }
+  }
+  function knobelPause(now, revert) {
+    if (revert) {
+      // Tasten 3/4/5 der Kombination nicht als Spielzug werten
+      let i = M.hist.length;
+      while (i > 0 && now - M.hist[i - 1].t < 700 && [3, 4, 5].includes(M.hist[i - 1].k)) i--;
+      if (i < M.hist.length) { Object.assign(M, JSON.parse(M.hist[i].snap)); M.hist.length = i; }
+    }
+    if (M.paused) { M.paused = false; M.runStart = now; lastKeyAt = now; }
+    else { M.acc += now - M.runStart; M.paused = true; }
+    sfx.beep();
+  }
+
+  function fullReset() {
+    S = freshMemory(S.rec);
+    save();
+    ring = null; alarmFired = false;
+    mode = "reset";
+    M = {};
+  }
+
+  // ---------- Tasten ----------
+  function chordCheck(now, revert) {
+    if ([1, 2, 3].every(n => held.has(n))) { fullReset(); return true; }
+    if ([3, 4, 5].every(n => held.has(n)) && mode === "knobel") { knobelPause(now, revert); return true; }
+    return false;
+  }
+
+  function keyDown(k) {
+    if (held.has(k)) return;
+    const now = performance.now();
+    held.add(k);
+    lastKeyAt = now;
+    sfx.klack();
+    if (ring) { ring = null; return; }
+    if (chordCheck(now, true)) return;
+    dispatch(k, now);
+  }
+  function keyUp(k) {
+    if (!held.delete(k)) return;
+    if (mode === "reset" && ![1, 2, 3].some(n => held.has(n))) { goHome(); sfx.beep(); }
+  }
+
+  function dispatch(k, now) {
+    switch (mode) {
+      case "uninit": case "reset": return;
+      case "home":
+        if (k === 6) startSelect("react", now);
+        else if (k === 2) startSelect("knobel", now);
+        else if (k === 1) mode = "clock";
+        return;
+      case "select":
+        if (k === (M.game === "react" ? 6 : 2)) { M.level = M.level % M.max + 1; M.until = now + 1500; }
+        else if (k === 1) goHome();
+        return;
+      case "react": return reactPress(k, now);
+      case "reactOver":
+        if (now < lockUntil) return;
+        if (k === 1) goHome(); else if (k === 6) startSelect("react", now);
+        return;
+      case "knobel": return knobelPress(k, now);
+      case "knobelDone":
+        if (now < lockUntil) return;
+        if (k === 1) goHome(); else if (k === 2) startSelect("knobel", now);
+        return;
+      case "off": goHome(); return;
+      case "clock":
+        if (k === 1) goHome();
+        else if (k === 2) { const { h, m } = hhmm(clockMs()); setClock(h * 3600000 + m * 60000, false); mode = "clockSet"; }
+        else if (k === 6) mode = "alarm";
+        return;
+      case "clockSet": return adjustClock(k);
+      case "alarm": return adjustAlarm(k);
+    }
+  }
+  function adjustClock(k) {
+    let { h, m } = hhmm(clockMs());
+    if (k === 5) h = (h + 1) % 24;
+    else if (k === 3) m = (m + 1) % 60;
+    else if (k === 1) { setClock(h * 3600000 + m * 60000, true); mode = "clock"; return; }
+    else return;
+    setClock(h * 3600000 + m * 60000, false);
+  }
+  function adjustAlarm(k) {
+    const al = S.alarm;
+    if (k === 4) al.on = !al.on;
+    else if (k === 5) { al.h = (al.h + 1) % 24; al.on = true; }
+    else if (k === 3) { al.m = (al.m + 1) % 60; al.on = true; }
+    else if (k === 1) mode = "clock";
+    alarmFired = true; // nicht sofort klingeln, wenn man gerade die aktuelle Minute einstellt
+    save();
+  }
+
+  // ---------- Zeitablauf ----------
+  function update(now) {
+    if (mode === "select" && now >= M.until) {
+      sfx.beep();
+      if (M.game === "react") startReact(M.level, now); else startKnobel(M.level, now);
+    }
+    if (mode === "react" && now >= M.flickerUntil && now - M.shownAt > M.limit) {
+      reactOver(`Zu langsam! Gesucht war die <b>${M.value}</b>.`, now);
+    }
+    if (mode === "knobel" && !M.paused) {
+      if (now - lastKeyAt > 120000) knobelPause(now, false);
+      else if (M.level === 1 && knobelElapsed(now) >= 200000) { mode = "off"; sfx.bad(); }
+    }
+    // Wecker
+    if (S.init && S.alarm.on && S.clock.running) {
+      const { h, m } = hhmm(clockMs());
+      const match = h === S.alarm.h && m === S.alarm.m;
+      if (match && !alarmFired) { ring = { until: now + 60000, next: now, i: 0 }; alarmFired = true; }
+      if (!match) alarmFired = false;
+    }
+    if (ring) {
+      if (now > ring.until) ring = null;
+      else if (now >= ring.next) { tone(2400, 0.07, "square", 0.05); ring.i++; ring.next = now + (ring.i % 4 === 0 ? 650 : 110); }
     }
   }
 
-  function gameOver(reason) {
-    state = "over";
-    cancelAnimationFrame(raf);
-    tone(140, 0.45, "sawtooth", 0.08);
-    if (target) keyFor(target).classList.add("target");
-    $("lcdState").textContent = "ENDE";
-    let text = `${reason} ${score} ${score === 1 ? "Treffer" : "Treffer"}.`;
-    if (score > best) {
-      best = score;
-      $("best").textContent = best;
-      try { localStorage.setItem("knobelklack-best", String(best)); } catch (e) {}
-      text += " Neuer Rekord!";
+  function view(now) {
+    const v = { d: [0, 0, 0, 0], colon: false, bell: false, blank: false };
+    const blinkSlow = Math.floor(now / 500) % 2 === 0;
+    const showClock = ms => { const { h, m } = hhmm(ms); v.d = text4(two(h) + two(m)); };
+    switch (mode) {
+      case "uninit": case "reset": case "off": v.blank = true; break;
+      case "home": v.d = [ALL, ALL, ALL, ALL]; break;
+      case "select": v.d = [CH[M.level], 0, 0, 0]; break;
+      case "react": if (now >= M.flickerUntil) v.d = text4(M.value); break;
+      case "reactOver": v.d = text4(Math.min(M.score, 9999)); break;
+      case "knobel":
+        if (M.paused) v.blank = true;
+        else {
+          v.d = M.segs.slice();
+          if (M.level === 1 && knobelElapsed(now) > 180000 && Math.floor(now / 250) % 2) v.blank = true;
+        }
+        break;
+      case "knobelDone": {
+        const s = Math.floor(M.time / 1000);
+        v.d = text4(two(Math.min(99, Math.floor(s / 60))) + two(s % 60));
+        v.colon = true;
+        break;
+      }
+      case "clock": showClock(clockMs()); v.colon = blinkSlow; v.bell = S.alarm.on; break;
+      case "clockSet": showClock(clockMs()); v.colon = true; v.bell = S.alarm.on; break;
+      case "alarm":
+        if (S.alarm.on) { v.d = text4(two(S.alarm.h) + two(S.alarm.m)); v.colon = true; v.bell = true; }
+        else v.d = text4("----");
+        break;
     }
-    $("message").textContent = text;
-    $("start").textContent = "Nochmal";
-    $("start").focus({ preventScroll: true });
+    if (ring) { v.bell = Math.floor(now / 200) % 2 === 0; v.blank = false; }
+    return v;
   }
 
-  keys.forEach(k => {
-    k.addEventListener("pointerdown", e => { e.preventDefault(); press(+k.dataset.n); });
-    // Tastatur-Fokus + Enter/Leertaste auf einer Taste
-    k.addEventListener("click", e => { if (e.detail === 0) press(+k.dataset.n); });
+  function statusText(now) {
+    if (ring) return "<b>Der Wecker klingelt!</b> Beliebige Taste drücken.";
+    switch (mode) {
+      case "uninit": return "Zum Einschalten die Tasten <b>1, 2 und 3</b> gleichzeitig drücken.";
+      case "reset": return "Alle Speicher gelöscht. Tasten loslassen.";
+      case "home": return "Grundstellung. <b>6</b> Reaktionsspiel, <b>2</b> Knobelspiel, <b>1</b> Uhr.";
+      case "select":
+        return M.game === "react"
+          ? `Reaktionsspiel Stufe <b>${M.level}</b>. ${M.level < 2 ? "Nochmal 6 für Stufe 2." : "Gleich geht's los!"}`
+          : `Knobelspiel Stufe <b>${M.level}</b>. ${M.level < 3 ? `Nochmal 2 für Stufe ${M.level + 1}.` : "Gleich geht's los!"}`;
+      case "react": return `Stufe ${M.level} · <b>${M.score}</b> Punkte · ${M.hits} ${M.hits === 1 ? "Treffer" : "Treffer"}`;
+      case "reactOver": return `${M.reason} <b>${M.score}</b> Punkte${M.record ? ", neuer Rekord!" : "."} <b>6</b> nächster Spieler, <b>1</b> Grundstellung.`;
+      case "knobel": {
+        if (M.paused) return "Pause. <b>3, 4 und 5</b> gleichzeitig drücken, um weiterzuspielen.";
+        const which = ["rechte", "mittlere", "linke"][M.stage];
+        const extra = M.level === 3 ? " Immer eine Taste gedrückt halten!" : "";
+        return `Knobelspiel Stufe ${M.level}: Baue die <b>${which} 8</b>.${extra}`;
+      }
+      case "knobelDone": return `Geschafft in <b>${mmss(M.time)}</b>${M.record ? ", neuer Rekord!" : "."} <b>2</b> nochmal, <b>1</b> Grundstellung.`;
+      case "off": return "Zeit abgelaufen, das Gerät hat sich ausgeschaltet. Beliebige Taste schaltet es wieder ein.";
+      case "clock": return "Uhr. <b>2</b> stellen, <b>6</b> Wecker, <b>1</b> Grundstellung.";
+      case "clockSet": return "Uhr stellen: <b>5</b> Stunden, <b>3</b> Minuten, <b>1</b> fertig.";
+      case "alarm": return "Wecker: <b>4</b> ein/aus, <b>5</b> Stunden, <b>3</b> Minuten, <b>1</b> zurück zur Uhr.";
+    }
+    return "";
+  }
+
+  // ---------- Darstellung ----------
+  const keyEls = [...document.querySelectorAll(".key")];
+  const statusEl = $("status");
+  let lastStatus = "";
+  function frame(now) {
+    update(now);
+    paint(view(now));
+    keyEls.forEach((el, i) => {
+      const n = i + 1;
+      el.classList.toggle("down", held.has(n));
+      el.classList.toggle("good", (flash[n] || 0) > now);
+      el.classList.toggle("target", mode === "reactOver" && M.need.has(n));
+    });
+    const st = statusText(now);
+    if (st !== lastStatus) { statusEl.innerHTML = st; lastStatus = st; }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- Eingabe ----------
+  keyEls.forEach(el => {
+    const n = Number(el.dataset.n);
+    el.addEventListener("pointerdown", e => {
+      e.preventDefault();
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      keyDown(n);
+    });
+    const up = () => keyUp(n);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+    el.addEventListener("lostpointercapture", up);
+    el.addEventListener("contextmenu", e => e.preventDefault());
+    el.addEventListener("click", e => { if (e.detail === 0) { keyDown(n); setTimeout(() => keyUp(n), 120); } });
   });
-  $("start").addEventListener("click", start);
   document.addEventListener("keydown", e => {
-    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-    const n = parseInt(e.key, 10);
-    if (n >= 1 && n <= 6) { e.preventDefault(); press(n); return; }
-    if ((e.key === " " || e.key === "Enter") && state !== "wait" && state !== "gap" && document.activeElement?.classList?.contains("key") !== true) {
-      e.preventDefault(); start();
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const n = Number(e.key);
+    if (!(n >= 1 && n <= 6)) return;
+    e.preventDefault();
+    if (e.repeat) {
+      // Gedrückt halten zum schnellen Verstellen von Uhr und Wecker
+      if ((mode === "clockSet" || mode === "alarm") && (n === 3 || n === 5)) dispatch(n, performance.now());
+      return;
     }
+    keyDown(n);
   });
+  document.addEventListener("keyup", e => { const n = Number(e.key); if (n >= 1 && n <= 6) keyUp(n); });
+  window.addEventListener("blur", () => [...held].forEach(keyUp));
 
-  // Ruhezustand: kleine Vorschau in der Anzeige
-  showDigit(1);
-  updateStats();
+  function pressChord(keys) {
+    const now = performance.now();
+    sfx.klack();
+    keys.forEach(k => held.add(k));
+    lastKeyAt = now;
+    if (ring) ring = null; else chordCheck(now, false);
+    setTimeout(() => keys.forEach(keyUp), 300);
+  }
+  $("chordReset").addEventListener("click", () => pressChord([1, 2, 3]));
+  $("chordPause").addEventListener("click", () => pressChord([3, 4, 5]));
+
+  showRecords();
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
