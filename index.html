@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Knobel Klack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@500;700;800&family=Share+Tech+Mono&display=swap">
+<style>
+/* Layout: ein Spielzeug auf dem Tisch – Titelzeile, Zählerleiste, gelbes Dreiecksgerät mit LCD in der Mitte, Startknopf darunter. */
+:root {
+  --table: #24418a;        /* blauer Tisch */
+  --table-deep: #182d63;
+  --plastic: #f5c21b;      /* gelbes Gehäuse */
+  --plastic-edge: #c8920a;
+  --button: #d8392c;       /* rote Tasten */
+  --button-dark: #8f1f17;
+  --hit: #2fa65a;
+  --lcd: #a7b78c;          /* LCD-Fläche */
+  --lcd-ink: #1d2915;
+  --paper: #f4f1e8;        /* Schrift auf dem Tisch */
+  --muted: #b9c4e6;
+  --font-display: "Bungee", "Arial Black", Impact, sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --font-lcd: "Share Tech Mono", ui-monospace, "Courier New", monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(120% 80% at 50% 30%, var(--table) 0%, var(--table-deep) 100%);
+  background-color: var(--table-deep);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+.app {
+  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-block: 18px 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 7vw, 44px);
+  letter-spacing: 0.02em;
+  margin: 0;
+  color: var(--plastic);
+  text-shadow: 0 3px 0 var(--plastic-edge), 0 6px 14px rgba(0,0,0,.35);
+  text-wrap: balance;
+  text-align: center;
+}
+.stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 84px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(0,0,0,.22);
+}
+.stat span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.stat strong {
+  font-family: var(--font-lcd);
+  font-size: 26px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+/* Gerät */
+.device {
+  position: relative;
+  width: min(100%, 540px, calc((100dvh - 270px) * 100 / 88));
+  min-width: 260px;
+  max-width: 100%;
+  aspect-ratio: 100 / 88;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.device svg.body { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.key {
+  --size: 13%;
+  position: absolute;
+  left: var(--x);
+  top: calc(var(--y) / 88 * 100%);
+  width: var(--size);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: clamp(16px, 4.6vw, 30px);
+  color: #fff3ea;
+  background: radial-gradient(circle at 35% 30%, #ff7a63 0%, var(--button) 45%, var(--button-dark) 100%);
+  box-shadow: 0 6px 0 var(--button-dark), 0 9px 14px rgba(0,0,0,.35), inset 0 -3px 6px rgba(0,0,0,.25);
+  text-shadow: 0 1px 0 rgba(0,0,0,.35);
+  transition: transform 60ms, box-shadow 60ms, background 120ms;
+}
+.key:focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
+.key.down { transform: translate(-50%, calc(-50% + 4px)); box-shadow: 0 2px 0 var(--button-dark), 0 3px 6px rgba(0,0,0,.35), inset 0 -2px 4px rgba(0,0,0,.25); }
+.key.good { background: radial-gradient(circle at 35% 30%, #8ff0ab 0%, var(--hit) 50%, #17602f 100%); box-shadow: 0 2px 0 #17602f, 0 0 22px rgba(120,255,160,.7); }
+.key.bad { animation: shake 320ms; background: radial-gradient(circle at 35% 30%, #555 0%, #2b2b2b 60%, #111 100%); box-shadow: 0 6px 0 #111; }
+.key.target { animation: pulse 700ms infinite alternate; }
+@keyframes shake { 0%,100% { margin-left: 0 } 25% { margin-left: -6px } 75% { margin-left: 6px } }
+@keyframes pulse { from { box-shadow: 0 6px 0 var(--button-dark), 0 0 0 0 rgba(255,255,255,.0); } to { box-shadow: 0 6px 0 var(--button-dark), 0 0 0 8px rgba(255,255,255,.55); } }
+
+.screen {
+  position: absolute;
+  left: 39.5%;
+  width: 21%;
+  top: calc(31 / 88 * 100%);
+  height: calc(34 / 88 * 100%);
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: linear-gradient(160deg, #b4c398 0%, var(--lcd) 60%, #98a87d 100%);
+  border: 5px solid #3a3a34;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,.35), 0 2px 0 rgba(255,255,255,.4);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 4px 5px 5px;
+  color: var(--lcd-ink);
+  font-family: var(--font-lcd);
+}
+.screen .top {
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(9px, 2.1vw, 13px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.screen svg { width: 100%; height: 100%; min-height: 0; }
+.seg { fill: var(--lcd-ink); opacity: .08; transition: opacity 40ms; }
+.seg.on { opacity: .92; }
+.timer { height: 5px; border-radius: 3px; background: rgba(29,41,21,.15); overflow: hidden; }
+.timer i { display: block; height: 100%; width: 100%; background: var(--lcd-ink); transform-origin: left; }
+
+.controls { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.start {
+  font-family: var(--font-display);
+  font-size: 20px;
+  padding: 12px 28px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  color: #3a2a00;
+  background: var(--plastic);
+  box-shadow: 0 5px 0 var(--plastic-edge), 0 8px 16px rgba(0,0,0,.3);
+}
+.start:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--plastic-edge); }
+.start:focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
+.message { margin: 0; min-height: 1.4em; font-weight: 700; font-size: 17px; text-wrap: balance; }
+.hint { margin: 0; font-size: 13px; color: var(--muted); max-width: 40ch; }
+kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.25); padding: 1px 5px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .key, .seg { transition: none; }
+  .key.bad, .key.target { animation: none; }
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <h1>Knobel Klack</h1>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><span>Treffer</span><strong id="score">0</strong></div>
+    <div class="stat"><span>Tempo</span><strong id="level">1</strong></div>
+    <div class="stat"><span>Rekord</span><strong id="best">0</strong></div>
+  </div>
+
+  <div class="device" id="device">
+    <svg class="body" viewBox="0 0 100 88" aria-hidden="true">
+      <polygon points="50,7 7,81.5 93,81.5" fill="#000" opacity=".28" stroke="#000" stroke-width="12" stroke-linejoin="round" transform="translate(0 3)"/>
+      <polygon points="50,6 7,80.5 93,80.5" fill="var(--plastic-edge)" stroke="var(--plastic-edge)" stroke-width="12" stroke-linejoin="round" transform="translate(0 1.6)"/>
+      <polygon points="50,6 7,80.5 93,80.5" fill="var(--plastic)" stroke="var(--plastic)" stroke-width="12" stroke-linejoin="round"/>
+      <polygon points="50,15 16,74 84,74" fill="none" stroke="var(--plastic-edge)" stroke-width=".6" stroke-linejoin="round" opacity=".6"/>
+    </svg>
+
+    <button class="key" data-n="1" style="--x:50%;--y:21" aria-label="Taste 1">1</button>
+    <button class="key" data-n="2" style="--x:69%;--y:45" aria-label="Taste 2">2</button>
+    <button class="key" data-n="3" style="--x:81%;--y:72" aria-label="Taste 3">3</button>
+    <button class="key" data-n="4" style="--x:50%;--y:73" aria-label="Taste 4">4</button>
+    <button class="key" data-n="5" style="--x:19%;--y:72" aria-label="Taste 5">5</button>
+    <button class="key" data-n="6" style="--x:31%;--y:45" aria-label="Taste 6">6</button>
+
+    <div class="screen" role="img" aria-label="Anzeige" id="screen">
+      <div class="top"><span id="lcdScore">000</span><span id="lcdState">BEREIT</span></div>
+      <svg viewBox="-4 0 68 100" preserveAspectRatio="xMidYMid meet" id="digit"></svg>
+      <div class="timer"><i id="bar"></i></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <p class="message" id="message">Drücke die Zahl, die im Bildschirm erscheint.</p>
+    <button class="start" id="start">Start</button>
+    <p class="hint">Tasten antippen oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. <kbd>Leertaste</kbd> startet.</p>
+  </div>
+</main>
+
+<script>
+(() => {
+  // --- Einstellungen ---
+  const START_TIME = 2000;  // ms für die erste Zahl
+  const MIN_TIME = 380;     // schnellstes Tempo
+  const FACTOR = 0.955;     // jede richtige Eingabe macht das Spiel schneller
+  const GAP = 180;          // kurze Pause mit leerem Bildschirm zwischen zwei Zahlen
+
+  // --- Siebensegment-Anzeige ---
+  const SEGMENTS = { 1: "bc", 2: "abged", 3: "abgcd", 4: "fgbc", 5: "afgcd", 6: "afgedc" };
+  const digitSvg = document.getElementById("digit");
+  const T = 9, G = 1.6, L = 8, R = 52, TOP = 8, MID = 50, BOT = 92;
+  const h = (x, y, len) => [[x, y], [x + T/2, y - T/2], [x + len - T/2, y - T/2], [x + len, y], [x + len - T/2, y + T/2], [x + T/2, y + T/2]];
+  const v = (x, y, len) => [[x, y], [x + T/2, y + T/2], [x + T/2, y + len - T/2], [x, y + len], [x - T/2, y + len - T/2], [x - T/2, y + T/2]];
+  const shapes = {
+    a: h(L + G, TOP, R - L - 2*G), g: h(L + G, MID, R - L - 2*G), d: h(L + G, BOT, R - L - 2*G),
+    f: v(L, TOP + G, MID - TOP - 2*G), e: v(L, MID + G, BOT - MID - 2*G),
+    b: v(R, TOP + G, MID - TOP - 2*G), c: v(R, MID + G, BOT - MID - 2*G),
+  };
+  const segEls = {};
+  const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  group.setAttribute("transform", "skewX(-6) translate(10 0)");
+  for (const [name, pts] of Object.entries(shapes)) {
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    p.setAttribute("points", pts.map(q => q.join(",")).join(" "));
+    p.setAttribute("class", "seg");
+    group.appendChild(p);
+    segEls[name] = p;
+  }
+  digitSvg.appendChild(group);
+  function showDigit(n) {
+    const on = n ? SEGMENTS[n] : "";
+    for (const s in segEls) segEls[s].classList.toggle("on", on.includes(s));
+  }
+
+  // --- Ton ---
+  let audio;
+  const PITCH = { 1: 523, 2: 587, 3: 659, 4: 698, 5: 784, 6: 880 };
+  function tone(freq, dur = 0.09, type = "square", vol = 0.06) {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audio.createOscillator(), gn = audio.createGain();
+      o.type = type; o.frequency.value = freq;
+      gn.gain.setValueAtTime(vol, audio.currentTime);
+      gn.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + dur);
+      o.connect(gn).connect(audio.destination);
+      o.start(); o.stop(audio.currentTime + dur);
+    } catch (e) {}
+  }
+
+  // --- Spielzustand ---
+  const $ = id => document.getElementById(id);
+  const keys = [...document.querySelectorAll(".key")];
+  const keyFor = n => keys[n - 1];
+  let state = "idle";     // idle | gap | wait | over
+  let score = 0, limit = START_TIME, target = 0, shownAt = 0, raf = 0, gapTimer = 0;
+  let best = 0;
+  try { best = parseInt(localStorage.getItem("knobelklack-best") || "0", 10) || 0; } catch (e) {}
+  $("best").textContent = best;
+
+  const levelOf = s => Math.floor(s / 5) + 1;
+  function updateStats() {
+    $("score").textContent = score;
+    $("level").textContent = levelOf(score);
+    $("lcdScore").textContent = String(score).padStart(3, "0");
+  }
+
+  function start() {
+    clearTimeout(gapTimer); cancelAnimationFrame(raf);
+    keys.forEach(k => k.classList.remove("good", "bad", "target"));
+    score = 0; limit = START_TIME; target = 0;
+    updateStats();
+    $("message").textContent = "Los geht's!";
+    $("start").textContent = "Neu starten";
+    $("lcdState").textContent = "SPIEL";
+    tone(660, 0.08); setTimeout(() => tone(990, 0.12), 110);
+    nextRound(600);
+  }
+
+  function nextRound(pause = GAP) {
+    state = "gap";
+    showDigit(0);
+    $("bar").style.transform = "scaleX(1)";
+    gapTimer = setTimeout(() => {
+      let n;
+      do { n = 1 + Math.floor(Math.random() * 6); } while (n === target);
+      target = n;
+      showDigit(n);
+      shownAt = performance.now();
+      state = "wait";
+      raf = requestAnimationFrame(tick);
+    }, pause);
+  }
+
+  function tick(now) {
+    if (state !== "wait") return;
+    const left = 1 - (now - shownAt) / limit;
+    if (left <= 0) { $("bar").style.transform = "scaleX(0)"; return gameOver("Zu langsam!"); }
+    $("bar").style.transform = `scaleX(${left})`;
+    raf = requestAnimationFrame(tick);
+  }
+
+  function press(n) {
+    const k = keyFor(n);
+    k.classList.add("down");
+    setTimeout(() => k.classList.remove("down"), 110);
+    if (state === "idle" || state === "over") { tone(PITCH[n], 0.06, "triangle", 0.05); return; }
+    if (state !== "wait") return; // in der Pause zählt nichts
+    cancelAnimationFrame(raf);
+    if (n === target) {
+      score++;
+      limit = Math.max(MIN_TIME, limit * FACTOR);
+      updateStats();
+      tone(PITCH[n]);
+      k.classList.add("good");
+      setTimeout(() => k.classList.remove("good"), 160);
+      $("message").textContent = `${Math.round(performance.now() - shownAt)} ms`;
+      nextRound();
+    } else {
+      k.classList.add("bad");
+      gameOver(`Falsch – gesucht war die ${target}.`);
+    }
+  }
+
+  function gameOver(reason) {
+    state = "over";
+    cancelAnimationFrame(raf);
+    tone(140, 0.45, "sawtooth", 0.08);
+    if (target) keyFor(target).classList.add("target");
+    $("lcdState").textContent = "ENDE";
+    let text = `${reason} ${score} ${score === 1 ? "Treffer" : "Treffer"}.`;
+    if (score > best) {
+      best = score;
+      $("best").textContent = best;
+      try { localStorage.setItem("knobelklack-best", String(best)); } catch (e) {}
+      text += " Neuer Rekord!";
+    }
+    $("message").textContent = text;
+    $("start").textContent = "Nochmal";
+    $("start").focus({ preventScroll: true });
+  }
+
+  keys.forEach(k => {
+    k.addEventListener("pointerdown", e => { e.preventDefault(); press(+k.dataset.n); });
+    // Tastatur-Fokus + Enter/Leertaste auf einer Taste
+    k.addEventListener("click", e => { if (e.detail === 0) press(+k.dataset.n); });
+  });
+  $("start").addEventListener("click", start);
+  document.addEventListener("keydown", e => {
+    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= 6) { e.preventDefault(); press(n); return; }
+    if ((e.key === " " || e.key === "Enter") && state !== "wait" && state !== "gap" && document.activeElement?.classList?.contains("key") !== true) {
+      e.preventDefault(); start();
+    }
+  });
+
+  // Ruhezustand: kleine Vorschau in der Anzeige
+  showDigit(1);
+  updateStats();
+})();
+</script>
+</body>
+</html>
