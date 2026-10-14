@@ -160,7 +160,7 @@ h1 {
 .opt input:focus-visible + span { outline: 3px solid var(--paper); outline-offset: 2px; }
 .opt input:disabled + span { opacity: .45; }
 .opt input:disabled { cursor: default; }
-.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: -4px; }
 .btn {
   font-family: var(--font-display);
   font-size: 18px;
@@ -238,6 +238,11 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     </div>
   </div>
 
+  <div class="actions">
+      <button class="btn" id="startBtn" type="button">Start</button>
+      <button class="btn secondary" id="pauseBtn" type="button" hidden>Pause</button>
+  </div>
+
   <p class="status" id="status" aria-live="polite"></p>
 
   <fieldset class="picker" id="picker">
@@ -257,16 +262,6 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
         <label class="opt"><input type="radio" name="mode" id="m-k3" value="knobel-3"><span>Stufe 3</span></label>
       </div>
     </div>
-    <div class="group">
-      <span class="group-name">Anzeige</span>
-      <div class="options">
-        <label class="opt"><input type="radio" name="mode" id="m-clock" value="clock"><span>Uhrzeit</span></label>
-      </div>
-    </div>
-    <div class="actions">
-      <button class="btn" id="startBtn" type="button">Start</button>
-      <button class="btn secondary" id="pauseBtn" type="button" hidden>Pause</button>
-    </div>
   </fieldset>
 
   <div class="records" aria-label="Rekorde">
@@ -280,7 +275,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   <details class="help">
     <summary>Kurzanleitung</summary>
     <h2>Bedienen</h2>
-    <p>Spiel und Stufe oben auswählen und <b>Start</b> drücken. Die Stufe erscheint kurz links in der Anzeige, dann piepst es und das Spiel beginnt. Tasten antippen (mehrere Finger gleichzeitig gehen auch) oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. <kbd>Leertaste</kbd> startet.</p>
+    <p>Spiel und Stufe oben auswählen und <b>Start</b> drücken. Links in der Anzeige steht die Stufe, rechts läuft ein Countdown 3‑2‑1. Beim langen Piepton geht es los. Tasten antippen (mehrere Finger gleichzeitig gehen auch) oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. <kbd>Leertaste</kbd> startet.</p>
     <h2>Reaktionsspiel</h2>
     <ul>
       <li>Stufe 1: nur Zahlen von 1 bis 6, je 1,5 Sekunden Zeit.</li>
@@ -393,7 +388,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   }
 
   // ---------- Spielmodi ----------
-  // home | select | react | reactOver | knobel | knobelDone | off | clock
+  // home | select | react | reactOver | knobel | knobelDone | off
   let mode = "home";
   let M = {};               // Daten des aktuellen Modus
   let lockUntil = 0;        // kurze Sperre nach Spielende gegen versehentliches Weiterdrücken
@@ -401,16 +396,16 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   const flash = {};         // Taste -> grün bis Zeitpunkt
   let lastKeyAt = performance.now();
 
+  const COUNTDOWN = 3;     // 3-2-1 vor dem Spielstart, damit die Finger an die Tasten kommen
   const goHome = () => { mode = "home"; M = {}; };
   const inGame = () => ["select", "react", "knobel"].includes(mode);
 
   function startChoice(now) {
     const v = choice();
-    if (v === "clock") { mode = "clock"; M = {}; sfx.beep(); return; }
     const [game, level] = v.split("-");
     mode = "select";
-    M = { game, level: Number(level), until: now + 1300 };
-    sfx.klack();
+    M = { game, level: Number(level), until: now + COUNTDOWN * 800, count: COUNTDOWN };
+    sfx.beep();
   }
 
   // Reaktionsspiel
@@ -541,8 +536,12 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
 
   // ---------- Zeitablauf ----------
   function update(now) {
+    if (mode === "select" && now < M.until) {
+      const c = Math.ceil((M.until - now) / 800);
+      if (c !== M.count) { M.count = c; sfx.beep(); }
+    }
     if (mode === "select" && now >= M.until) {
-      sfx.beep();
+      tone(2600, 0.25, "square", 0.05);
       if (M.game === "react") startReact(M.level, now); else startKnobel(M.level, now);
     }
     if (mode === "react" && now >= M.flickerUntil && now - M.shownAt > M.limit) {
@@ -559,7 +558,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     switch (mode) {
       case "off": v.blank = true; break;
       case "home": v.d = [ALL, ALL, ALL, ALL]; break;
-      case "select": v.d = [CH[M.level], 0, 0, 0]; break;
+      case "select": v.d = [CH[M.level], 0, 0, CH[M.count] || 0]; break;
       case "react": if (now >= M.flickerUntil) v.d = text4(M.value); break;
       case "reactOver": v.d = text4(Math.min(M.score, 9999)); break;
       case "knobel":
@@ -575,12 +574,6 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
         v.colon = true;
         break;
       }
-      case "clock": {
-        const d = new Date();
-        v.d = text4(two(d.getHours()) + two(d.getMinutes()));
-        v.colon = Math.floor(now / 500) % 2 === 0;
-        break;
-      }
     }
     return v;
   }
@@ -588,7 +581,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   function statusText(now) {
     switch (mode) {
       case "home": return "Spiel auswählen und <b>Start</b> drücken.";
-      case "select": return `${M.game === "react" ? "Reaktionsspiel" : "Knobelspiel"} Stufe <b>${M.level}</b>. Gleich geht's los!`;
+      case "select": return `${M.game === "react" ? "Reaktionsspiel" : "Knobelspiel"} Stufe <b>${M.level}</b>. Finger an die Tasten … <b>${M.count}</b>`;
       case "react": return `Stufe ${M.level} · <b>${M.score}</b> Punkte · ${M.hits} Treffer`;
       case "reactOver": return `${M.reason} <b>${M.score}</b> Punkte${M.record ? ", neuer Rekord!" : "."} Nächster Spieler: <b>Start</b>.`;
       case "knobel": {
@@ -599,7 +592,6 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
       }
       case "knobelDone": return `Geschafft in <b>${mmss(M.time)}</b>${M.record ? ", neuer Rekord!" : "."}`;
       case "off": return "Zeit abgelaufen, das Gerät hat sich ausgeschaltet.";
-      case "clock": return "Uhrzeit.";
     }
     return "";
   }
@@ -610,7 +602,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   if (S.choice) { const r = radios.find(x => x.value === S.choice); if (r) r.checked = true; }
   radios.forEach(r => r.addEventListener("change", () => {
     S.choice = r.value; save();
-    if (mode === "clock" || mode === "reactOver" || mode === "knobelDone" || mode === "off") goHome();
+    if (mode === "reactOver" || mode === "knobelDone" || mode === "off") goHome();
   }));
   const startBtn = $("startBtn"), pauseBtn = $("pauseBtn");
   startBtn.addEventListener("click", () => {
