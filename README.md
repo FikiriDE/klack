@@ -1,6 +1,6 @@
-# Knobel Klack
+# Blitzdreieck
 
-Nachbau des Reaktions- und Knobelspiels nach der Original-Bedienungsanleitung, im Browser spielbar.
+Reaktions- und Knobelspiel auf einem Dreieck mit sechs Tasten, im Browser spielbar. Vorbild ist ein Elektronikspiel aus den 1980ern.
 
 - Spiel und Stufe im Auswahlfeld unter dem Gerät wählen, dann Start
 - Reaktionsspiel (Stufe 1 oder 2)
