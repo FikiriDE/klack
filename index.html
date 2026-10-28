@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@500;700;800&family=Share+Tech+Mono&display=swap">
 <style>
-/* Layout: ein Spielzeug auf dem Tisch – Titel, gelbes Dreiecksgerät mit vierstelliger LCD-Anzeige, darunter Statuszeile, Kombi-Tasten, Rekorde und Kurzanleitung. */
+/* Layout: ein Spielzeug auf dem Tisch – Titel, gelbes Blitzdreieck mit vierstelliger LCD-Anzeige, darunter Start, Statuszeile, Spielauswahl, Rekorde und Anleitung. */
 :root {
   --table: #24418a;
   --table-deep: #182d63;
@@ -61,7 +61,7 @@ h1 {
   text-align: center;
 }
 
-/* Gerät */
+/* Das Blitzdreieck */
 .device {
   position: relative;
   width: min(100%, 560px, calc((100dvh - 260px) * 100 / 88));
@@ -117,7 +117,7 @@ h1 {
 .seg.on { opacity: .92; }
 .screen.blank .seg.on { opacity: .07; }
 
-/* Unter dem Gerät */
+/* Unter dem Blitzdreieck */
 .status {
   margin: 0;
   min-height: 2.8em;
@@ -273,7 +273,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
   </div>
 
   <details class="help">
-    <summary>Kurzanleitung</summary>
+    <summary>So spielst du Blitzdreieck</summary>
     <h2>Bedienen</h2>
     <p>Spiel und Stufe oben auswählen und <b>Start</b> drücken. Links in der Anzeige steht die Stufe, rechts läuft ein Countdown 3‑2‑1. Beim langen Piepton geht es los. Tasten antippen (mehrere Finger gleichzeitig gehen auch) oder <kbd>1</kbd>–<kbd>6</kbd> auf der Tastatur. <kbd>Leertaste</kbd> startet.</p>
     <h2>Reaktionsspiel</h2>
@@ -287,10 +287,10 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     <ul>
       <li>Jeder Tastendruck lässt einen der sieben Striche der 8 aufleuchten oder wieder verlöschen. Finde heraus, nach welchem System.</li>
       <li>Erst die rechte 8 bauen, dann die mittlere, dann die linke. Die Zeit wird gestoppt und am Schluss angezeigt.</li>
-      <li>Stufe 1: höchstens 3:20 Minuten. In den letzten 20 Sekunden blinkt die Anzeige, danach schaltet sich das Gerät aus.</li>
+      <li>Stufe 1: höchstens 3:20 Minuten. In den letzten 20 Sekunden blinkt die Anzeige, danach schaltet sich das Blitzdreieck aus.</li>
       <li>Stufe 2: ohne Zeitlimit und schwerer.</li>
       <li>Stufe 3: Du musst immer eine Taste gedrückt halten, während du die nächste drückst (Tastatur oder zwei Finger).</li>
-      <li>Pause: Knopf <b>Pause</b> oder 3, 4 und 5 gleichzeitig. Nach zwei Minuten ohne Tastendruck macht das Gerät selbst Pause.</li>
+      <li>Pause: Knopf <b>Pause</b> oder 3, 4 und 5 gleichzeitig. Nach zwei Minuten ohne Tastendruck macht das Blitzdreieck selbst Pause.</li>
     </ul>
     <h2>Abbrechen</h2>
     <p>Knopf <b>Abbrechen</b> oder 1, 2 und 3 gleichzeitig: Das Spiel endet, die Anzeige zeigt wieder viermal die 8.</p>
@@ -364,7 +364,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     } catch (e) {}
   }
   const sfx = {
-    klack: () => tone(1900, 0.025, "square", 0.025),
+    click: () => tone(1900, 0.025, "square", 0.025),
     beep: () => tone(2100, 0.14, "square", 0.05),
     good: n => tone(500 + n * 60, 0.07, "square", 0.045),
     digit: () => { tone(1320, 0.07); tone(1760, 0.1, "square", 0.05, 0.08); },
@@ -526,7 +526,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
     const now = performance.now();
     held.add(k);
     lastKeyAt = now;
-    sfx.klack();
+    sfx.click();
     if (chordCheck(now)) return;
     if (mode === "react") reactPress(k, now);
     else if (mode === "knobel") knobelPress(k, now);
@@ -591,7 +591,7 @@ kbd { font-family: var(--font-lcd); background: rgba(0,0,0,.3); padding: 1px 5px
         return `Knobelspiel Stufe ${M.level}: Baue die <b>${which} 8</b>.${extra}`;
       }
       case "knobelDone": return `Geschafft in <b>${mmss(M.time)}</b>${M.record ? ", neuer Rekord!" : "."}`;
-      case "off": return "Zeit abgelaufen, das Gerät hat sich ausgeschaltet.";
+      case "off": return "Zeit abgelaufen, das Blitzdreieck hat sich ausgeschaltet.";
     }
     return "";
   }
